@@ -2,21 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { UpdateMealDto } from './dto/update-meal.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMealDto } from './dto/create-meal.dto';
+import { Meal } from '@prisma/client';
 
 @Injectable()
 export class MealsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createMealDto: CreateMealDto) {
+  create(createMealDto: CreateMealDto) {
     return this.prisma.meal.create({ data: createMealDto });
   }
 
-  async findAll(): Promise<any[]> {
+  findAll(): Promise<Meal[]> {
     return this.prisma.meal.findMany();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} meal`;
+    return this.prisma.meal.findUnique({ where: { id } });
   }
 
   update(id: number, updateMealDto: UpdateMealDto) {

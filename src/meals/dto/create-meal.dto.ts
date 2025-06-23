@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class CreateMealDto {
   @IsString()
@@ -7,6 +7,4 @@ export class CreateMealDto {
   description: string;
   @IsString()
   body: string;
-  @IsOptional()
-  published: boolean;
 }

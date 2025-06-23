@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 
 import * as bcrypt from 'bcrypt';
+import { JwtPayload } from './types';
 
 @Injectable()
 export class AuthService {
@@ -37,7 +38,7 @@ export class AuthService {
       throw new Error('Incorrect credentials');
     }
 
-    const payload = { email: user.email };
+    const payload: JwtPayload = { email: user.email };
 
     return {
       accessToken: await this.jwtService.signAsync(payload, {
