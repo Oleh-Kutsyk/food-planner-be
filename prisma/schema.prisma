@@ -26,9 +26,12 @@ model Meal {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  name     String
-  lastName String
-  email    String
-  meals    Meal[]
+  id           Int     @id @default(autoincrement())
+  name         String
+  lastName     String
+  email        String  @unique
+  password     String
+  accessToken  String?
+  refreshToken String?
+  meals        Meal[]
 }
