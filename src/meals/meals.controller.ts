@@ -42,6 +42,7 @@ export class MealsController {
   }
 
   @Get()
+  @UseGuards(AuthGuard)
   async findAll() {
     return await this.mealsService.findAll();
   }
