@@ -5,3 +5,8 @@ export interface JwtPayload {
 }
 
 export interface AuthenticatedRequest extends Request, JwtPayload {}
+
+export interface Tokens {
+  accessToken: string;
+  refreshToken: string;
+}

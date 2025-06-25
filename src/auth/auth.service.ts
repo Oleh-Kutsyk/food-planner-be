@@ -1,10 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-
 import * as bcrypt from 'bcrypt';
-import { JwtPayload } from './types';
+import { JwtPayload, Tokens } from './types';
 
 @Injectable()
 export class AuthService {
@@ -15,9 +18,8 @@ export class AuthService {
 
   async signUp(body: CreateUserDto) {
     const user = await this.userService.findUser(body.email);
-    if (user) {
-      throw new Error('User already exists');
-    }
+
+    if (user) throw new ConflictException('User already exists');
 
     const salt = await bcrypt.genSalt();
     body.password = await bcrypt.hash(body.password, salt);
@@ -25,22 +27,18 @@ export class AuthService {
     return await this.userService.createUser(body);
   }
 
-  async signIn(email: string, password: string): Promise<any> {
+  async signIn(email: string, password: string): Promise<Tokens> {
     const user = await this.userService.findUser(email);
 
-    if (!user) {
-      throw new Error('User does not exist');
-    }
+    if (!user) throw new Error('Incorrect credentials');
 
     const isPassMatch = await bcrypt.compare(password, user.password);
 
-    if (!isPassMatch) {
-      throw new Error('Incorrect credentials');
-    }
+    if (!isPassMatch) throw new Error('Incorrect credentials');
 
     const payload: JwtPayload = { email: user.email };
 
-    return {
+    const tokens = {
       accessToken: await this.jwtService.signAsync(payload, {
         expiresIn: '10m',
       }),
@@ -48,5 +46,54 @@ export class AuthService {
         expiresIn: '1d',
       }),
     };
+
+    user.accessToken = tokens.accessToken;
+    user.refreshToken = tokens.refreshToken;
+
+    await this.userService.updateUser(user);
+
+    return tokens;
+  }
+
+  async refreshToken(
+    refreshToken: string,
+  ): Promise<Pick<Tokens, 'accessToken'>> {
+    const user = await this.userService.findUserByKey(
+      'refreshToken',
+      refreshToken,
+    );
+
+    if (!user || !user.refreshToken) {
+      throw new UnauthorizedException();
+    }
+
+    try {
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(
+        user.refreshToken,
+      );
+
+      const accessToken = await this.jwtService.signAsync(payload, {
+        expiresIn: '10m',
+      });
+
+      user.accessToken = accessToken;
+
+      await this.userService.updateUser(user);
+
+      return { accessToken };
+    } catch {
+      throw new UnauthorizedException();
+    }
+  }
+
+  async signOut(email: string) {
+    const user = await this.userService.findUser(email);
+
+    if (!user) throw new UnauthorizedException();
+
+    user.accessToken = null;
+    user.refreshToken = null;
+
+    await this.userService.updateUser(user);
   }
 }
