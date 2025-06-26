@@ -8,6 +8,16 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async findUserById(
+    id: number,
+  ): Promise<Omit<User, 'password' | 'accessToken' | 'refreshToken'> | null> {
+    return this.prisma.user.findUnique({
+      where: { id },
+      include: { meals: true },
+      omit: { password: true, accessToken: true, refreshToken: true },
+    });
+  }
+
   async findUser(email: string): Promise<User | null> {
     return this.prisma.user.findUnique({ where: { email } });
   }

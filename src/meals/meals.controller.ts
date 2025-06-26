@@ -3,12 +3,11 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
-  UseFilters,
   UseGuards,
   Put,
+  Req,
 } from '@nestjs/common';
 import { MealsService } from './meals.service';
 import { CreateMealDto } from './dto/create-meal.dto';
@@ -16,6 +15,7 @@ import { UpdateMealDto } from './dto/update-meal.dto';
 import { Roles } from '../guards/roles.decorator';
 import { RolesGuard } from '../guards/auth.guard';
 import { AuthGuard } from '../auth/auth.guard';
+import { AuthenticatedRequest } from '../auth/types';
 
 @Controller('meals')
 @UseGuards(RolesGuard)
@@ -25,8 +25,11 @@ export class MealsController {
   @Post()
   @Roles(['admin'])
   @UseGuards(AuthGuard)
-  create(@Body() createMealDto: CreateMealDto) {
-    return this.mealsService.create(createMealDto);
+  create(
+    @Req() req: AuthenticatedRequest,
+    @Body() createMealDto: CreateMealDto,
+  ) {
+    return this.mealsService.create(createMealDto, req.email);
   }
 
   @Put(':id')

@@ -1,15 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { UpdateMealDto } from './dto/update-meal.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMealDto } from './dto/create-meal.dto';
 import { Meal } from '@prisma/client';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class MealsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly userService: UsersService,
+  ) {}
 
-  create(createMealDto: CreateMealDto) {
-    return this.prisma.meal.create({ data: createMealDto });
+  async create(createMealDto: CreateMealDto, userEmail: string) {
+    const user = await this.userService.findUser(userEmail);
+
+    if (!user) throw new ConflictException('User not found');
+
+    return this.prisma.meal.create({
+      data: { ...createMealDto, userId: user.id },
+    });
   }
 
   findAll(): Promise<Meal[]> {
