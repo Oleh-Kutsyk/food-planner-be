@@ -11,17 +11,20 @@ import { UsersModule } from './users/users.module';
 import { AuthService } from './auth/auth.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
+import { LoggerModule } from './logger/logger.module';
+import { MyLoggerService } from './logger/logger.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    LoggerModule,
     PrismaModule,
     MealsModule,
     UsersModule,
     AuthModule,
   ],
   controllers: [AppController, AuthController],
-  providers: [AppService, PrismaService, AuthService],
+  providers: [AppService, PrismaService, MyLoggerService, AuthService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
