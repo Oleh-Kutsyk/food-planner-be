@@ -18,6 +18,7 @@ model Meal {
   title       String   @unique
   description String?
   body        String
+  likes       Int      @default(0)
   image       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

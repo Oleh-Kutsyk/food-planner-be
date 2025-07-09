@@ -44,14 +44,20 @@ export class MealsController {
     return this.mealsService.remove(+id);
   }
 
-  @Get()
-  @UseGuards(AuthGuard)
+  @Get('all')
   async findAll() {
     return await this.mealsService.findAll();
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   findOne(@Param('id') id: string) {
     return this.mealsService.findOne(+id);
+  }
+
+  @Get()
+  @UseGuards(AuthGuard)
+  findManyForByUser(@Req() req: AuthenticatedRequest) {
+    return this.mealsService.findManyForByUser(req.email);
   }
 }

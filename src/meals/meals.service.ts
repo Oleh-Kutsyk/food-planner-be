@@ -22,19 +22,29 @@ export class MealsService {
     });
   }
 
+  update(mealId: number, updateMealDto: UpdateMealDto) {
+    return this.prisma.meal.update({
+      where: { id: mealId },
+      data: updateMealDto,
+    });
+  }
+
+  remove(mealId: number) {
+    return this.prisma.meal.delete({
+      where: { id: mealId },
+    });
+  }
+
   findAll(): Promise<Meal[]> {
     return this.prisma.meal.findMany();
   }
 
+  async findManyForByUser(userEmail: string): Promise<Meal[]> {
+    const user = await this.userService.findUser(userEmail);
+    return this.prisma.meal.findMany({ where: { userId: user?.id } });
+  }
+
   findOne(id: number) {
     return this.prisma.meal.findUnique({ where: { id } });
-  }
-
-  update(id: number, updateMealDto: UpdateMealDto) {
-    return `This action updates a #${id} meal`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} meal`;
   }
 }
