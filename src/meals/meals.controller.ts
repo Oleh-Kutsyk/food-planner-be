@@ -8,6 +8,8 @@ import {
   UseGuards,
   Put,
   Req,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { MealsService } from './meals.service';
 import { CreateMealDto } from './dto/create-meal.dto';
@@ -16,6 +18,7 @@ import { Roles } from '../guards/roles.decorator';
 import { RolesGuard } from '../guards/auth.guard';
 import { AuthGuard } from '../auth/auth.guard';
 import { AuthenticatedRequest } from '../auth/types';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('meals')
 @UseGuards(RolesGuard)
@@ -32,9 +35,15 @@ export class MealsController {
     return this.mealsService.create(createMealDto, req.email);
   }
 
+  @UseInterceptors(FileInterceptor('image'))
   @Put(':id')
   @UseGuards(AuthGuard)
-  update(@Param('id') id: string, @Body() updateMealDto: UpdateMealDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateMealDto: UpdateMealDto,
+    @UploadedFile() image: Express.Multer.File,
+  ) {
+    console.log('updateMealDto', id, image);
     return this.mealsService.update(+id, updateMealDto);
   }
 
