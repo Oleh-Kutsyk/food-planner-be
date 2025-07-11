@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { GetObjectCommand, PutObjectCommand, S3 } from '@aws-sdk/client-s3';
 import { MyLoggerService } from '../logger/logger.service';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -44,7 +44,7 @@ export class StorageService {
 
     try {
       return await getSignedUrl(this.s3Client, getCommand, {
-        expiresIn: 3600, // 1hour,
+        expiresIn: 3600 * 2, // 1hour,
       });
     } catch (error) {
       this.loggerService.error('Error getting file', error);
