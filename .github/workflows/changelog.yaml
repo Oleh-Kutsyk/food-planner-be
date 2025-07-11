@@ -2,7 +2,7 @@ name: Changelog
 
 on:
   workflow_run:
-    workflows: ["Release"]
+    workflows: [ "Release" ]
     types:
       - completed
 
@@ -33,22 +33,43 @@ jobs:
           echo "current_tag=$current_tag" >> $GITHUB_OUTPUT
           echo "prev_tag=$prev_tag" >> $GITHUB_OUTPUT
 
-      - name: Generate changelog entry
+      - name: Generate structured changelog entry
+        id: changelog
         run: |
           tag=${{ steps.tags.outputs.current_tag }}
           prev=${{ steps.tags.outputs.prev_tag }}
           date=$(date +'%Y-%m-%d')
 
           if [ -n "$prev" ]; then
-            log=$(git log "$prev..$tag" --pretty=format:"- %s (%an)" --no-merges)
+            log=$(git log "$prev..$tag" --pretty=format:"%s|%an" --no-merges)
           else
-            log=$(git log "$tag" --pretty=format:"- %s (%an)" --no-merges)
+            log=$(git log "$tag" --pretty=format:"%s|%an" --no-merges)
           fi
 
           echo "## $tag — $date" > new_changelog.md
           echo "" >> new_changelog.md
-          echo "$log" >> new_changelog.md
-          echo "" >> new_changelog.md
+
+          echo "$log" | grep -i '^feat' | awk -F'|' '{print "- 🚀 " $1 " (" $2 ")"}' >> feat.md
+          echo "$log" | grep -i '^fix'  | awk -F'|' '{print "- 🐛 " $1 " (" $2 ")"}' >> fix.md
+          echo "$log" | grep -i '^chore'| awk -F'|' '{print "- 🧼 " $1 " (" $2 ")"}' >> chore.md
+          echo "$log" | grep -i '^test' | awk -F'|' '{print "- 🧪 " $1 " (" $2 ")"}' >> test.md
+          echo "$log" | grep -i '^docs' | awk -F'|' '{print "- 📚 " $1 " (" $2 ")"}' >> docs.md
+
+          for section in feat fix chore test docs; do
+            file="$section.md"
+            if [ -f "$file" ]; then
+              case $section in
+                feat)  echo -e "### 🚀 Features\n" >> new_changelog.md ;;
+                fix)   echo -e "### 🐛 Fixes\n" >> new_changelog.md ;;
+                chore) echo -e "### 🧼 Chores\n" >> new_changelog.md ;;
+                test)  echo -e "### 🧪 Tests\n" >> new_changelog.md ;;
+                docs)  echo -e "### 📚 Documentation\n" >> new_changelog.md ;;
+              esac
+              cat "$file" >> new_changelog.md
+              echo "" >> new_changelog.md
+              rm "$file"
+            fi
+          done
 
       - name: Update CHANGELOG.md
         run: |
