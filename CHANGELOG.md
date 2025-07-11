@@ -1,3 +1,22 @@
+## v0.0.3 — 2025-07-11
+
+### 🚀 Features
+
+
+### 🐛 Fixes
+
+- 🐛 fix(changelog): restructuring (oleh.kutsyk@group107.com)
+
+### 🧼 Chores
+
+- 🧼 chore: update changelog for v0.0.2 (Oleh_kutsyk)
+
+### 🧪 Tests
+
+
+### 📚 Documentation
+
+
 ## v0.0.2 — 2025-07-11
 
 - add changelog (oleh.kutsyk@group107.com)
