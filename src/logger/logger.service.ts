@@ -4,7 +4,7 @@ import * as WinstonCloudWatch from 'winston-cloudwatch';
 
 enum LogLevel {
   Error = 'error', // Error events are likely to cause problems
-  Warn = 'warn', // Warning events might cause problems in the future and deserve eyes
+  Warn = 'warning', // Warning events might cause problems in the future and deserve eyes
   Info = 'info', // Routine information, such as ongoing status or performance
   Debug = 'debug', // Debug or trace information
 }
