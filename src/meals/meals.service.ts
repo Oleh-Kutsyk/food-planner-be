@@ -32,7 +32,7 @@ export class MealsService {
     file: Express.Multer.File,
   ) {
     try {
-      let imageUrl: string | null = '';
+      let imageUrl: string | null = null;
       let key: string | undefined = '';
 
       if (file) {
