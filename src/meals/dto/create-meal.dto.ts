@@ -7,6 +7,4 @@ export class CreateMealDto {
   description: string;
   @IsString()
   body: string;
-  @IsString()
-  image: string;
 }

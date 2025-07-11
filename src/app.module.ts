@@ -13,6 +13,7 @@ import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { LoggerModule } from './logger/logger.module';
 import { MyLoggerService } from './logger/logger.service';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { MyLoggerService } from './logger/logger.service';
     MealsModule,
     UsersModule,
     AuthModule,
+    StorageModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService, PrismaService, MyLoggerService, AuthService],

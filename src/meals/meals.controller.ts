@@ -43,8 +43,7 @@ export class MealsController {
     @Body() updateMealDto: UpdateMealDto,
     @UploadedFile() image: Express.Multer.File,
   ) {
-    console.log('updateMealDto', id, image);
-    return this.mealsService.update(+id, updateMealDto);
+    return this.mealsService.update(+id, updateMealDto, image);
   }
 
   @Delete(':id')
@@ -67,6 +66,6 @@ export class MealsController {
   @Get()
   @UseGuards(AuthGuard)
   findManyForByUser(@Req() req: AuthenticatedRequest) {
-    return this.mealsService.findManyForByUser(req.email);
+    return this.mealsService.findManyByUser(req.email);
   }
 }
