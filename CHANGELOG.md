@@ -1,3 +1,7 @@
+## v0.0.2 — 2025-07-11
+
+- add changelog (oleh.kutsyk@group107.com)
+
 ## refs/heads/main — 2025-07-11
 
 - add ci/cd new (oleh.kutsyk@group107.com)
