@@ -28,7 +28,7 @@ jobs:
 
       - name: Create and push tag
         run: |
-          git config user.name "Oleh_Kutsyk"
+          git config user.name "Oleh_kutsyk"
           git config user.email "kutsyk1304@gmail.com"
           git tag ${{ steps.bump.outputs.new_tag }}
           git push origin ${{ steps.bump.outputs.new_tag }}
