@@ -12,6 +12,26 @@ services:
     ports:
       - '5432:5432'
 
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    environment:
+      DATABASE_URL: postgres://myuser:mypassword@postgres:5432/food_planner
+      JWT_SECRET: secret_jwt_key
+      NODE_ENV: development
+      AWS_ACCESS_KEY_ID: AKIAWMBVE7FO6XWH2VVM
+      AWS_SECRET_ACCESS_KEY: 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
+      AWS_REGION: eu-central-1
+    depends_on:
+      - postgres
+    command: sh -c "npx prisma migrate dev && npm run start:dev"
+
 volumes:
   postgres:
 
