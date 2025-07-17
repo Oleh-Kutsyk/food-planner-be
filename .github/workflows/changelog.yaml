@@ -14,11 +14,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # потрібен повний git log і теги
+          fetch-depth: 0
 
       - name: Setup Git user
         run: |
-          git config user.name "Oleh_kutsyk"
+          git config user.name "Oleh_Kutsyk"
           git config user.email "oleh.kutsyk@group107.com"
 
       - name: Get current and previous tags
@@ -57,7 +57,7 @@ jobs:
 
           for section in feat fix chore test docs; do
             file="$section.md"
-            if [ -f "$file" ]; then
+            if [ -s "$file" ]; then
               case $section in
                 feat)  echo -e "### 🚀 Features\n" >> new_changelog.md ;;
                 fix)   echo -e "### 🐛 Fixes\n" >> new_changelog.md ;;
