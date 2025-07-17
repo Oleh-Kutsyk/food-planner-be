@@ -1,3 +1,13 @@
+## v0.0.5 — 2025-07-17
+
+### 🚀 Features
+
+- 🚀 feat(meals): add CRUD methods fix(prisma-schema): change image to imageKey and add avatar to User entity (oleh.kutsyk@group107.com)
+
+### 🧼 Chores
+
+- 🧼 chore: update changelog for v0.0.4 (Oleh_Kutsyk)
+
 ## v0.0.4 — 2025-07-17
 
 ### 🐛 Fixes
