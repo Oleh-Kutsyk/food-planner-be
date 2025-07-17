@@ -6,6 +6,7 @@ import { Meal } from '@prisma/client';
 import { UsersService } from '../users/users.service';
 import { StorageService } from '../storage/storage.service';
 import { MyLoggerService } from '../logger/logger.service';
+import { MealResponse } from './types';
 
 @Injectable()
 export class MealsService {
@@ -16,42 +17,74 @@ export class MealsService {
     private readonly loggerService: MyLoggerService,
   ) {}
 
-  async create(createMealDto: CreateMealDto, userEmail: string) {
+  private async getMealsWithImgUrls(meals: Meal[]): Promise<MealResponse[]> {
+    const mealsWithImagesUrls: MealResponse[] = [];
+
+    for (const meal of meals) {
+      const imageUrl = await this.storageService.getFile(meal.imageKey);
+      mealsWithImagesUrls.push({ ...meal, image: imageUrl });
+    }
+    return mealsWithImagesUrls;
+  }
+
+  private async uploadFile(mealId: number, file: Express.Multer.File) {
+    if (!file) return null;
+
+    const key = await this.storageService.uploadFile(
+      `meals/${mealId}.${file.originalname}`,
+      file.buffer,
+    );
+
+    if (key) {
+      await this.prisma.meal.update({
+        where: { id: mealId },
+        data: { imageKey: key },
+      });
+    }
+
+    return await this.storageService.getFile(key);
+  }
+
+  async create(
+    createMealDto: CreateMealDto,
+    userEmail: string,
+    file: Express.Multer.File,
+  ): Promise<MealResponse | undefined> {
     const user = await this.userService.findUser(userEmail);
 
     if (!user) throw new ConflictException('User not found');
 
-    return this.prisma.meal.create({
+    const result = await this.prisma.meal.create({
       data: { ...createMealDto, userId: user.id },
     });
+
+    const imageUrl = await this.uploadFile(result.id, file);
+
+    const obj: Partial<Meal> = result;
+
+    delete obj.imageKey;
+
+    return { ...obj, image: imageUrl };
   }
 
   async update(
     mealId: number,
     updateMealDto: UpdateMealDto,
     file: Express.Multer.File,
-  ) {
+  ): Promise<MealResponse | undefined> {
     try {
-      let imageUrl: string | null = '';
-      let key: string | undefined = '';
-
-      if (file) {
-        key = await this.storageService.uploadFile(
-          `meals/${mealId}.${file.originalname}`,
-          file.buffer,
-        );
-      }
-
       const result = await this.prisma.meal.update({
         where: { id: mealId },
-        data: { ...updateMealDto, ...(key && { image: key }) },
+        data: { ...updateMealDto },
       });
 
-      if (result.image) {
-        imageUrl = await this.storageService.getFile(result.image);
-      }
+      const imageUrl = await this.uploadFile(mealId, file);
 
-      return { ...result, image: imageUrl };
+      const obj: Partial<Meal> = result;
+
+      delete obj.imageKey;
+
+      return { ...obj, image: imageUrl };
     } catch (error) {
       this.loggerService.error('MealsService update', error);
     }
@@ -63,26 +96,20 @@ export class MealsService {
     });
   }
 
-  findAll(): Promise<Meal[]> {
-    return this.prisma.meal.findMany();
+  async findAll(): Promise<MealResponse[]> {
+    const meals = await this.prisma.meal.findMany();
+
+    return this.getMealsWithImgUrls(meals);
   }
 
-  async findManyByUser(userEmail: string): Promise<Meal[]> {
+  async findAllByUser(userEmail: string): Promise<MealResponse[]> {
     const user = await this.userService.findUser(userEmail);
 
     const meals = await this.prisma.meal.findMany({
       where: { userId: user?.id },
     });
 
-    const mealsWithImagesUrls: Meal[] = [];
-
-    for (const meal of meals) {
-      const imageUrl = await this.storageService.getFile(meal.image);
-      console.log(imageUrl);
-      mealsWithImagesUrls.push({ ...meal, image: imageUrl });
-    }
-    console.log('mealsWithImagesUrls', mealsWithImagesUrls);
-    return mealsWithImagesUrls;
+    return this.getMealsWithImgUrls(meals);
   }
 
   async findOne(id: number): Promise<Meal> {
@@ -90,7 +117,7 @@ export class MealsService {
 
     if (!meal) throw new ConflictException('Meal not found');
 
-    const imageUrl = await this.storageService.getFile(meal.image);
-    return { ...meal, image: imageUrl };
+    const imageUrl = await this.storageService.getFile(meal.imageKey);
+    return { ...meal, imageKey: imageUrl };
   }
 }

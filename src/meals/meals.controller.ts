@@ -25,14 +25,16 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class MealsController {
   constructor(private readonly mealsService: MealsService) {}
 
+  @UseInterceptors(FileInterceptor('image'))
   @Post()
   @Roles(['admin'])
   @UseGuards(AuthGuard)
   create(
     @Req() req: AuthenticatedRequest,
     @Body() createMealDto: CreateMealDto,
+    @UploadedFile() image: Express.Multer.File,
   ) {
-    return this.mealsService.create(createMealDto, req.email);
+    return this.mealsService.create(createMealDto, req.email, image);
   }
 
   @UseInterceptors(FileInterceptor('image'))
@@ -65,7 +67,7 @@ export class MealsController {
 
   @Get()
   @UseGuards(AuthGuard)
-  findManyForByUser(@Req() req: AuthenticatedRequest) {
-    return this.mealsService.findManyByUser(req.email);
+  findAllByUser(@Req() req: AuthenticatedRequest) {
+    return this.mealsService.findAllByUser(req.email);
   }
 }

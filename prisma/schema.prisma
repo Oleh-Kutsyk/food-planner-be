@@ -19,7 +19,7 @@ model Meal {
   description String?
   body        String
   likes       Int      @default(0)
-  image       String?
+  imageKey    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   User        User?    @relation(fields: [userId], references: [id])
@@ -35,4 +35,5 @@ model User {
   accessToken  String?
   refreshToken String?
   meals        Meal[]
+  avatar       String?
 }
