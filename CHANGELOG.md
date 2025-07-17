@@ -1,3 +1,13 @@
+## v0.0.6 — 2025-07-17
+
+### 🚀 Features
+
+- 🚀 feat(meals): dockerized app and db (oleh.kutsyk@group107.com)
+
+### 🧼 Chores
+
+- 🧼 chore: update changelog for v0.0.5 (Oleh_Kutsyk)
+
 ## v0.0.5 — 2025-07-17
 
 ### 🚀 Features
